@@ -1,17 +1,12 @@
-import { create } from "zustand";
 import { auth } from "@/config/firebase";
 import {
-  onAuthStateChanged,
-  signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
-  signOut,
+  onAuthStateChanged,
   signInWithCredential,
-  GoogleAuthProvider
+  signInWithEmailAndPassword,
+  signOut,
 } from "firebase/auth";
-import * as Google from "expo-auth-session/providers/google";
-import * as WebBrowser from "expo-web-browser";
-
-WebBrowser.maybeCompleteAuthSession();
+import { create } from "zustand";
 
 export const useAuth = create((set, get) => ({
   user: null,
@@ -20,14 +15,6 @@ export const useAuth = create((set, get) => ({
   signUpEmail: (email, pw) => createUserWithEmailAndPassword(auth, email, pw),
   signInEmail: (email, pw) => signInWithEmailAndPassword(auth, email, pw),
   signOut: () => signOut(auth),
-  signInWithGoogle: async () => {
-    const [request, response, promptAsync] = Google.useAuthRequest({
-      iosClientId: "YOUR_IOS_CLIENT_ID.apps.googleusercontent.com",
-    });
-    const res = await promptAsync();
-    const idToken = res?.authentication?.idToken;
-    if (!idToken) throw new Error("No Google ID token");
-    const credential = GoogleAuthProvider.credential(idToken);
-    return signInWithCredential(auth, credential);
-  }
+  signInWithGoogleCredential: (credential) =>
+    signInWithCredential(auth, credential),
 }));
